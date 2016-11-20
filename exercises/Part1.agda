@@ -26,8 +26,8 @@ data _∈_ {A : Set} (x : A) : List A → Set where
 -- the form nat::bool::[] etc so G is a concrete argument of this form
 -- (eg nat::bool::[]); an env actually gives concrete vals for a G
 data Expr (Γ : Cxt) : Type → Set where
-  var   : ∀ {a} → a ∈ Γ → Expr Γ a
-  lit   : (n : Nat) → Expr Γ nat
+  var   : ∀ {a} → a ∈ Γ → Expr Γ a  -- takes a value with type {a}
+  lit   : (n : Nat) → Expr Γ nat -- lit n is of type Expr G nat
   true  : Expr Γ bool
   false : Expr Γ bool
   less  : (a b : Expr Γ nat) → Expr Γ bool
@@ -38,7 +38,7 @@ tmp5 : Cxt
 tmp5 = nat ∷ []
 
 tmp6 : nat ∈ tmp5
-tmp6 = zero
+tmp6 = zero  -- zero is an index into the context; the type of tmp6 is (nat : tmp5) so tmp6 is an index into context tmp5, and the context at that posn has type nat; but the context seems to just record 
 
 tmp7 : Expr tmp5 nat
 tmp7 = var tmp6
@@ -58,7 +58,7 @@ data All {A : Set} (P : A → Set) : List A → Set where
 tmp : All Value []
 tmp = []
 
-tmp2 : All Value (nat ∷ [])
+tmp2 : All Value (nat ∷ []) -- the type of lists whose elts exactly match the types
 tmp2 = 0 ∷ []
 
 
@@ -82,12 +82,12 @@ tmp3 = lookup∈ tmp2 zero
 -- Env takes a Cxt (which is eg nat::bool::[]) and produces a type
 -- Value is a function from nat to Nat etc; so All Value G is a list type eg Nat::Bool::[]
 Env : Cxt → Set
-Env Γ = All Value Γ
+Env Γ = All Value Γ  -- All Value G is a type, values have to match G positionally
 
-tmp4 : Env (nat ∷ [])
+tmp4 : Env (nat ∷ []) -- tmp4 has type Env (nat :: [])
 tmp4 = 0 ∷ []
 
--- Value nat is Nat
+-- Value nat is Nat; t is the repn of a type
 eval : ∀ {Γ t} → Env Γ → Expr Γ t → Value t
 eval env (var x) = lookup∈ env x
 eval env (lit n) = n
